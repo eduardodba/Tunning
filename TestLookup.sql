@@ -4,8 +4,6 @@
 */
 
 
-
-
 IF OBJECT_ID('st_TestLookup') IS NOT NULL
 BEGIN
   DROP PROCEDURE dbo.st_TestLookup
