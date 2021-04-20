@@ -1,3 +1,11 @@
+/* 
+-- Autor: Fabiano Amorim
+-- Descrição: Procedure que avalia se é menos custoso realizar um scan ou Lookup na tabela.
+*/
+
+
+
+
 IF OBJECT_ID('st_TestLookup') IS NOT NULL
 BEGIN
   DROP PROCEDURE dbo.st_TestLookup
