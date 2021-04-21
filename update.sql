@@ -1,75 +1,45 @@
--- Simulação sem Indice
+-- Criação da tabela CustomersTest 9 segundos
+IF OBJECT_ID('Northwind..CustomersTest') IS NULL
+	SELECT CustomerID, CompanyName, ContactName INTO CustomersTest FROM CustomersBig;
 
--- Custo 3750 
--- Tempo de Execução 8 min 40 seg
+-- Criação da tabela CustomersTest 1 segundos
+if OBJECT_ID('Northwind..CustomersModelTest') IS NULL
+	SELECT CustomerID, ContactName INTO CustomersModelTest FROM CustomersTest;
 
-update b
-set b.companyName = (case when a.companyName in 
-('Wolski  Zajazd 95FF7788'
-,'The Big Cheese D0CAAC5C'
-,'Cactus Comidas para llevar C37700C5'
-,'Queen Cozinha 80C60353'
-,'Chop-suey Chinese 87D67C96'
-,'Maison Dewey 0CE83506'
-,'Comércio Mineiro CBFFB86D'
-,'Tradição Hipermercados 0906602E'
-,'Galería del gastrónomo DA833BF2'
-,'Franchi S.p.A. 5DA780D1'
-,'Familia Arquibaldo 11AF8D06'
-,'Mère Paillarde BCF20AB2'
-,'Pericles Comidas clásicas 5B7297D7'
-,'Vaffeljernet 120747D7') then a.companyName else 'OUTROS' END)
-from CustomersBig a inner join ##CustomersBig b on a.customerID=b.customerID
+UPDATE CustomersTest SET contactName = NULL
 
 
--- Custo Select 19
--- Custo Update 367
--- Temp de Execução 3 min
 
-declare @tab table(customerID int, companyName varchar(209))
-insert into @tab (customerID,companyName)
-select customerID, companyName from CustomersBig where companyName in ('Wolski  Zajazd 95FF7788'
-,'The Big Cheese D0CAAC5C'
-,'Cactus Comidas para llevar C37700C5'
-,'Queen Cozinha 80C60353'
-,'Chop-suey Chinese 87D67C96'
-,'Maison Dewey 0CE83506'
-,'Comércio Mineiro CBFFB86D'
-,'Tradição Hipermercados 0906602E'
-,'Galería del gastrónomo DA833BF2'
-,'Franchi S.p.A. 5DA780D1'
-,'Familia Arquibaldo 11AF8D06'
-,'Mère Paillarde BCF20AB2'
-,'Pericles Comidas clásicas 5B7297D7'
-,'Vaffeljernet 120747D7')
+-- Custo 112.8 / Memory Grant 532 MB / Tempo de execução 2 min 20 seg
 
-update a set a.companyName = (case when a.customerID = b.customerID then b.companyName else 'OUTROS' end)
-from ##CustomersBig a inner join @tab b on a.customerID=b.customerID
+UPDATE t SET t.contactName = CASE WHEN m.contactName NOT IN (
+'Roland Mendel 15D2D14C'
+,'Francisco Chang 85F9DB01'
+,'Horst Kloss 551D67ED'
+,'Ann Devon DF26B2BC'
+,'Carlos González 3E4CE048'
+,'Jaime Yorres E7D0415B'
+,'Eduardo Saavedra 44664DCD'
+,'Fran Wilson 814575BD') THEN 'SEM NOME' ELSE m.contactName END
+FROM CustomersTest t INNER JOIN CustomersModelTest m ON t.CustomerID=m.CustomerID
 
 
--- Com indice
--- Custo Select 19
--- Custo Update 0.03
--- Temp de Execução 06 seg
 
-CREATE NONCLUSTERED INDEX IX_CustomerID ON [dbo].[##CustomersBig] ([CustomerID])
 
-declare @tab table(customerID int, companyName varchar(209))
-insert into @tab (customerID,companyName)
-select customerID, companyName from CustomersBig where companyName in ('Wolski  Zajazd 95FF7788'
-,'The Big Cheese D0CAAC5C'
-,'Cactus Comidas para llevar C37700C5'
-,'Queen Cozinha 80C60353'
-,'Chop-suey Chinese 87D67C96'
-,'Maison Dewey 0CE83506'
-,'Comércio Mineiro CBFFB86D'
-,'Tradição Hipermercados 0906602E'
-,'Galería del gastrónomo DA833BF2'
-,'Franchi S.p.A. 5DA780D1'
-,'Familia Arquibaldo 11AF8D06'
-,'Mère Paillarde BCF20AB2'
-,'Pericles Comidas clásicas 5B7297D7'
-,'Vaffeljernet 120747D7')
+-- Custo 12 / Memory Grant 12 MB / Tempo de execução 01 seg 
 
-update a set a.companyName = (case when a.customerID = b.customerID then b.companyName else 'OUTROS' end)
-from ##CustomersBig a inner join @tab b on a.customerID=b.customerID
+DECLARE @tab TABLE(CustomerID INT, contactName VARCHAR(209))
+INSERT INTO @tab (customerID,contactName)
+SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
+'Roland Mendel 15D2D14C'
+,'Francisco Chang 85F9DB01'
+,'Horst Kloss 551D67ED'
+,'Ann Devon DF26B2BC'
+,'Carlos González 3E4CE048'
+,'Jaime Yorres E7D0415B'
+,'Eduardo Saavedra 44664DCD'
+,'Fran Wilson 814575BD') 
+
+
+UPDATE t SET t.contactName = (CASE WHEN t.customerID = m.customerID THEN m.contactName ELSE 'SEM NOME' END)
+FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
