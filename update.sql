@@ -1,3 +1,7 @@
+------------------------
+-- Exemplo com Update
+------------------------
+
 -- Criação da tabela CustomersTest 9 segundos
 IF OBJECT_ID('Northwind..CustomersTest') IS NULL
 	SELECT CustomerID, CompanyName, ContactName INTO CustomersTest FROM CustomersBig;
@@ -44,4 +48,41 @@ SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
 UPDATE t SET t.contactName = (CASE WHEN t.customerID = m.customerID THEN 'SEM NOME' ELSE m.contactName END)
 FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
 
+
+
+------------------------
+-- Exemplo com Select
+------------------------
+
+-- 1000000 de registros como saída / 13 segundos
+SELECT t.CustomerID, CASE WHEN m.contactName IN (
+ 'Roland Mendel 15D2D14C'
+,'Francisco Chang 85F9DB01'
+,'Horst Kloss 551D67ED'
+,'Ann Devon DF26B2BC'
+,'Carlos González 3E4CE048'
+,'Jaime Yorres E7D0415B'
+,'Eduardo Saavedra 44664DCD'
+,'Fran Wilson 814575BD') THEN 'SEM NOME' ELSE m.contactName END
+FROM CustomersTest t INNER JOIN CustomersModelTest m ON t.CustomerID=m.CustomerID
+
+
+
+-- 8 de registros como saída / 01 segundos
+
+DECLARE @tab TABLE(CustomerID INT, contactName VARCHAR(209))
+INSERT INTO @tab (customerID,contactName)
+SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
+'Roland Mendel 15D2D14C'
+,'Francisco Chang 85F9DB01'
+,'Horst Kloss 551D67ED'
+,'Ann Devon DF26B2BC'
+,'Carlos González 3E4CE048'
+,'Jaime Yorres E7D0415B'
+,'Eduardo Saavedra 44664DCD'
+,'Fran Wilson 814575BD') 
+
+
+SELECT t.CustomerID, CASE WHEN t.customerID = m.customerID THEN 'SEM NOME' ELSE m.contactName END
+FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
 
