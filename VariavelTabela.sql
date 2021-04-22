@@ -10,11 +10,18 @@ IF OBJECT_ID('Northwind..CustomersTest') IS NULL
 if OBJECT_ID('Northwind..CustomersModelTest') IS NULL
 	SELECT CustomerID, ContactName INTO CustomersModelTest FROM CustomersTest;
 
-UPDATE CustomersTest SET contactName = NULL
+
+UPDATE CustomersTest SET contactName = 'SEM NOME'
+
+
+-- 8 SEM NOME
+select count(*) as QTD, a.TIPO from (
+select case when contactName = 'SEM NOME' Then 'SEM NOME' else 'COM NOME' end as TIPO from CustomersTest
+) a group by a.tipo
 
 
 
--- Custo 112.8 / Memory Grant 548 MB / Tempo de execução 3 min 08 seg
+-- Custo 113 / Memory Grant 83 MB / Tempo de execução 3 min 01 seg
 
 UPDATE t SET t.contactName = CASE WHEN m.contactName IN (
 'Roland Mendel 15D2D14C'
@@ -29,12 +36,11 @@ FROM CustomersTest t INNER JOIN CustomersModelTest m ON t.CustomerID=m.CustomerI
 
 
 
-
--- Custo 12 / Memory Grant 16 MB / Tempo de execução 01 seg 
+-- Custo 112.8 / Memory Grant 548 MB / Tempo de execução 41 seg
 
 DECLARE @tab TABLE(CustomerID INT, contactName VARCHAR(209))
 INSERT INTO @tab (customerID,contactName)
-SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
+SELECT customerID, contactName FROM CustomersModelTest WHERE contactName NOT IN (
 'Roland Mendel 15D2D14C'
 ,'Francisco Chang 85F9DB01'
 ,'Horst Kloss 551D67ED'
@@ -45,8 +51,10 @@ SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
 ,'Fran Wilson 814575BD') 
 
 
-UPDATE t SET t.contactName = (CASE WHEN t.customerID = m.customerID THEN 'SEM NOME' ELSE m.contactName END)
-FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
+UPDATE t SET t.contactName = (
+	CASE WHEN t.customerID = m.customerID THEN m.contactName 
+	ELSE 'SEM NOME' END
+) FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
 
 
 
