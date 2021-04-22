@@ -1,6 +1,4 @@
-------------------------
--- Exemplo com Update
-------------------------
+dbcc dropcleanbuffers
 
 -- Criação da tabela CustomersTest 9 segundos
 IF OBJECT_ID('Northwind..CustomersTest') IS NULL
@@ -19,6 +17,10 @@ select count(*) as QTD, a.TIPO from (
 select case when contactName = 'SEM NOME' Then 'SEM NOME' else 'COM NOME' end as TIPO from CustomersTest
 ) a group by a.tipo
 
+
+------------------------
+-- Exemplo com Update
+------------------------
 
 
 -- Custo 113 / Memory Grant 83 MB / Tempo de execução 3 min 01 seg
