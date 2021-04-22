@@ -62,7 +62,10 @@ UPDATE t SET t.contactName = (
 -- Exemplo com Select
 ------------------------
 
--- 1000000 de registros como saída / 13 segundos
+dbcc dropcleanbuffers
+
+-- Custo 17 / Memory Grant 181 MB / Tempo de execução 14 seg
+
 SELECT t.CustomerID, CASE WHEN m.contactName IN (
  'Roland Mendel 15D2D14C'
 ,'Francisco Chang 85F9DB01'
@@ -75,12 +78,11 @@ SELECT t.CustomerID, CASE WHEN m.contactName IN (
 FROM CustomersTest t INNER JOIN CustomersModelTest m ON t.CustomerID=m.CustomerID
 
 
-
--- 8 de registros como saída / 01 segundos
+-- Custo 55 / Memory Grant 181 MB / Tempo de execução 17 seg
 
 DECLARE @tab TABLE(CustomerID INT, contactName VARCHAR(209))
 INSERT INTO @tab (customerID,contactName)
-SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
+SELECT customerID, contactName FROM CustomersModelTest WHERE contactName NOT IN (
 'Roland Mendel 15D2D14C'
 ,'Francisco Chang 85F9DB01'
 ,'Horst Kloss 551D67ED'
@@ -91,6 +93,9 @@ SELECT customerID, contactName FROM CustomersModelTest WHERE contactName IN (
 ,'Fran Wilson 814575BD') 
 
 
-SELECT t.CustomerID, CASE WHEN t.customerID = m.customerID THEN 'SEM NOME' ELSE m.contactName END
+SELECT t.CustomerID, CASE WHEN t.customerID = m.customerID THEN m.contactName ELSE 'SEM NOME' END
 FROM CustomersTest t INNER JOIN @tab m ON t.customerID=m.customerID
+
+
+
 
