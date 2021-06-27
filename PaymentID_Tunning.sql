@@ -139,27 +139,27 @@ SELECT CustomerID,
 
 -- Query Eduardo Apenas uma consulta
 SELECT CustomerID,
-Value,
-case when PaymentType = 'E' then PaymentID_External else PaymentID_Internal end as PaymentID
-from (
-SELECT c.CustomerID,
-c.Value,
-c.PaymentType,
-c.ExternalPayment,
-d.PaymentID as PaymentID_External,
-c.PaymentID_Internal
+       Value,
+       CASE
+           WHEN PaymentType = 'E' THEN PaymentID_External
+           ELSE PaymentID_Internal
+       END AS PaymentID
 FROM
-(
-SELECT a.CustomerID,
-a.Value,
-a.InternalPayment,
-a.ExternalPayment,
-a.PaymentType,
-b.PaymentID as PaymentID_Internal
-FROM OrdersBig AS a
-LEFT JOIN PaymentInfo b
-ON a.InternalPayment = b.InternalPayment
-) c
-LEFT JOIN PaymentInfo d ON c.ExternalPayment = d.ExternalPayment) e
-ORDER BY CustomerID, Value
-OPTION (MAXDOP 1)
+  (SELECT c.CustomerID,
+          c.Value,
+          c.PaymentType,
+          c.ExternalPayment,
+          d.PaymentID AS PaymentID_External,
+          c.PaymentID_Internal
+   FROM
+     (SELECT a.CustomerID,
+             a.Value,
+             a.InternalPayment,
+             a.ExternalPayment,
+             a.PaymentType,
+             b.PaymentID AS PaymentID_Internal
+      FROM OrdersBig AS a
+      LEFT JOIN PaymentInfo b ON a.InternalPayment = b.InternalPayment) c
+   LEFT JOIN PaymentInfo d ON c.ExternalPayment = d.ExternalPayment) e
+ORDER BY CustomerID,
+         Value OPTION (MAXDOP 1)
