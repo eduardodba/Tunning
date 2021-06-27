@@ -162,4 +162,4 @@ FROM
       LEFT JOIN PaymentInfo b ON a.InternalPayment = b.InternalPayment) c
    LEFT JOIN PaymentInfo d ON c.ExternalPayment = d.ExternalPayment) e
 ORDER BY CustomerID,
-         Value OPTION (MAXDOP 1)
+Value OPTION (MAXDOP 1)
